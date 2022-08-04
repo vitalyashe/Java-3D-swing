@@ -26,10 +26,6 @@ public class Main {
             System.out.println("Loaded object " + obj.getName());
         }
 
-        Mesh sphere = field.getObject("Sphere");
-
-        //sphere.rotateY((45 * Math.PI) / 180);
-
         field.repaint();
 
         while (true) {
@@ -42,18 +38,14 @@ public class Main {
         }
     }
 
-    private static Mesh[] initObjects()
-    {
+    private static Mesh[] initObjects() {
         ArrayList<Mesh> result = new ArrayList<>();
-        //result.add(getObject("box.obj"));
-        //result.add(getObject("monkey.obj"));
-        result.add(getObject("sphere.obj"));
+        result.add(getObject("box.obj"));
 
         return result.toArray(new Mesh[0]);
     }
 
-    private static Mesh getObject(String pathToFile)
-    {
+    private static Mesh getObject(String pathToFile) {
         try {
             Path path = Paths.get(pathToFile);
             BufferedReader reader = Files.newBufferedReader(path);
@@ -79,9 +71,6 @@ public class Main {
                     points.add(new Vector(Double.parseDouble(cords[0]), Double.parseDouble(cords[1]), Double.parseDouble(cords[2])));
 
 
-
-                    System.out.println("adding " + Double.parseDouble(cords[0]) + "; " + Double.parseDouble(cords[1]) + "; " + Double.parseDouble(cords[2]));
-
                 } else if (buffer.startsWith("f")) {
                     String triangleString = buffer.substring(2);
                     String pointIndexesPlusOne[] = triangleString.split("\\s+");
@@ -91,11 +80,7 @@ public class Main {
                 }
             } while (true);
 
-            System.out.println("Triangles count is " + triangles.size());
-
             Mesh mesh = new Mesh(triangles.toArray(new Triangle[0]), name);
-
-            //mesh.plus(new Vector(0, 0, 50));
 
             return mesh;
         } catch (IOException e) {

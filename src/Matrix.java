@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class Matrix {
     private double[][] matrix;
 
@@ -50,32 +52,46 @@ public class Matrix {
 
     public static Matrix identity() {
         return new Matrix(new double[][]{
-                {1.0, 0, 0},
-                {0, 1.0, 0},
-                {0, 0, 1.0}
+                {1.0, 0, 0, 0},
+                {0, 1.0, 0, 0},
+                {0, 0, 1.0, 0},
+                {0, 0, 0, 1.0}
         });
+    }
+
+    public static Matrix identity(int size) {
+        double[][] result = new double[size][size];
+
+        for (int i = 0; i < size; i++) {
+            result[i][i] = 1.0;
+        }
+
+        return new Matrix(result);
     }
 
     public static Matrix rotateX(double rx) {
         double cos = Math.cos(rx);
         double sin = Math.sin(rx);
 
-        double[][] result = new double[3][3];
+        double[][] result = new double[4][4];
 
         result[0][0] = 1;
         result[1][1] = cos;
         result[1][2] = -sin;
         result[2][1] = sin;
         result[2][2] = cos;
+        result[3][3] = 1;
 
         return new Matrix(result);
     }
 
     public static Matrix rotate(Vector vector, double rv) {
-        double[][] result = new double[3][3];
+        double[][] result = new double[4][4];
 
         double cos = Math.cos(rv);
         double sin = Math.sin(rv);
+
+        vector = vector.normalized();
 
         result[0][0] = cos + (1.0 - cos) * vector.getX() * vector.getX();
         result[0][1] = (1.0 - cos) * vector.getX() * vector.getY() - sin * vector.getZ();
@@ -89,21 +105,86 @@ public class Matrix {
         result[2][1] = (1.0 - cos) * vector.getZ() * vector.getY() + sin * vector.getX();
         result[2][2] = cos + (1.0 - cos) * vector.getZ() * vector.getZ();
 
+        result[3][3] = 1;
+
         return new Matrix(result);
     }
 
-    public static Matrix rotateY(double ry, double r) {
-        double[][] result = new double[3][3];
+    public static Matrix rotateY(double ry) {
+        double[][] result = new double[4][4];
 
         double cos = Math.cos(ry);
         double sin = Math.sin(ry);
 
         result[1][1] = 1;
-        result[0][0] = r * cos;
-        result[0][2] = r * sin;
-        result[2][0] = r * -sin;
-        result[2][2] = r * cos;
+        result[0][0] = cos;
+        result[0][2] = sin;
+        result[2][0] = -sin;
+        result[2][2] = cos;
+        result[3][3] = 1;
 
         return new Matrix(result);
     }
+
+    public static Matrix rotateZ(double rz) {
+        double[][] result = new double[4][4];
+
+        double cos = Math.cos(rz);
+        double sin = Math.sin(rz);
+
+        result[2][2] = 1;
+        result[0][0] = cos;
+        result[0][1] = -sin;
+        result[1][0] = sin;
+        result[1][1] = cos;
+        result[3][3] = 1;
+
+        return new Matrix(result);
+    }
+
+    public static Matrix translate(Vector v, int size) {
+        Matrix identity = identity(size);
+
+        identity.matrix[0][3] = v.getX();
+        identity.matrix[1][3] = v.getY();
+        identity.matrix[2][3] = v.getZ();
+
+        return identity;
+    }
+
+    public static Matrix rotation(Vector v) {
+        return rotateX(v.getX()).mul(rotateY(v.getY())).mul(rotateZ(v.getZ()));
+    }
+
+    public Vector w() {
+        return new Vector(matrix[0][3], matrix[1][3], matrix[2][3]);
+    }
+
+    public static Matrix projection(double fov, double aspect, double ZNear, double ZFar) {
+        double[][] result = new double[][]{
+                {1.0 / (Math.tan(Math.PI * fov * 0.5 / 180) * aspect), 0, 0, 0},
+                {0, 1.0 / (Math.tan(Math.PI * fov * 0.5 / 180)), 0, 0},
+                {0, 0, ZFar / (ZFar - ZNear), (-ZFar * ZNear) / (ZFar - ZNear), 0},
+                {0, 0, 1, 0}
+        };
+
+        return new Matrix(result);
+    }
+
+    public static Matrix screenSpace(int width, int height) {
+        double[][] result = new double[][]{
+                {-0.5 * width, 0, 0, 0.5 * width},
+                {0, -0.5 * height, 0, 0.5 * height},
+                {0, 0, 1, 0},
+                {0, 0, 0, 1}
+        };
+
+        return new Matrix(result);
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.deepToString(matrix);
+    }
+
 }

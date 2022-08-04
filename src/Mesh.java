@@ -1,7 +1,11 @@
-public class Mesh implements Object3D, Calculable {
+import java.util.Arrays;
+
+public class Mesh implements Object3D {
     private Triangle[] triangles;
     private String name;
     private Vector angle = new Vector();
+    private Vector position = new Vector(0, 0, 0);
+    private Matrix transformMatrix = Matrix.identity(4);
 
     public Mesh(Triangle[] triangles) throws Exception {
         this.triangles = triangles;
@@ -16,62 +20,97 @@ public class Mesh implements Object3D, Calculable {
         return triangles;
     }
 
-    @Override
     public String getName() {
         return name;
     }
 
-    @Override
     public void translate(Vector vector) {
+        position.plus(vector);
+
         for (Triangle triangle : triangles) {
             triangle.translate(vector);
         }
     }
 
-    @Override
     public void plus(Vector vector) {
         for (Triangle triangle : triangles) {
             triangle.plus(vector);
         }
     }
 
-    @Override
     public void minus(Vector vector) {
         for (Triangle triangle : triangles) {
             triangle.minus(vector);
         }
     }
 
-    @Override
     public void mul(double number) {
         for (Triangle triangle : triangles) {
             triangle.mul(number);
         }
     }
 
-    @Override
     public void div(double number) {
         for (Triangle triangle : triangles) {
             triangle.div(number);
         }
     }
 
-    @Override
     public void rotateX(double rx) {
         for (Triangle triangle : triangles) {
-            triangle.rotateX(rx);
+            for (Vector vector : triangle.getVectors()) {
+                Matrix matrix = vector.getMatrix().mul(Matrix.rotateX(rx));
+                vector.set(matrix.get(0, 0), matrix.get(1, 1), matrix.get(2, 2));
+            }
         }
     }
 
     public void rotateY(double ry) {
         for (Triangle triangle : triangles) {
             for (Vector vector : triangle.getVectors()) {
-
-                System.out.println("ABS IS " + vector.abs());
-
-                Matrix matrix = vector.getMatrix().mul(Matrix.rotateY(ry, vector.abs()));
+                Matrix matrix = vector.getMatrix().mul(Matrix.rotateY(ry));
                 vector.set(matrix.get(0, 0), matrix.get(1, 1), matrix.get(2, 2));
             }
         }
+    }
+
+    public void transform(Matrix t) {
+        transformMatrix = transformMatrix.mul(t);
+    }
+
+    public void rotate(Vector v) {
+        angle.plus(v);
+        transform(Matrix.rotation(v));
+    }
+
+    public void rotate(Vector v, double rv) {
+        transform(Matrix.rotate(v, rv));
+    }
+
+    public void rotateRelativePoint(Vector s, Vector r) {
+        angle.plus(r);
+
+        transformRelativePoint(s, Matrix.rotation(r));
+    }
+
+    public void rotateRelativePoint(Vector s, Vector v, double r) {
+        transformRelativePoint(s, Matrix.rotate(v, r));
+    }
+
+    public void transformRelativePoint(Vector point, Matrix transform) {
+        position.minus(point);
+        transformMatrix = Matrix.translate(position, 4);
+        transformMatrix = transform.mul(transformMatrix);
+        position = transformMatrix.w().plus(point);
+
+        transformMatrix = Matrix.translate(transformMatrix.w().mul(-1), 4).mul(transformMatrix);
+    }
+
+    public void translateToPoint(Vector point) {
+        translate(point.minus(position));
+    }
+
+    public Matrix model() {
+        return Matrix.translate(position, 4).mul(transformMatrix);
     }
 }

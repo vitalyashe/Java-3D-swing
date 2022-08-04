@@ -1,6 +1,6 @@
 import java.awt.*;
 
-public class Triangle implements Calculable {
+public class Triangle {
     private Vector[] vectors;
     private Color color;
 
@@ -32,50 +32,37 @@ public class Triangle implements Calculable {
         return vectors;
     }
 
-    @Override
     public void translate(Vector vector) {
         for (Vector localVector : vectors) {
             localVector.translate(vector);
         }
     }
 
-    @Override
     public void plus(Vector vector) {
         for (Vector localVector : vectors) {
             localVector.plus(vector);
         }
     }
 
-    @Override
     public void minus(Vector vector) {
         for (Vector localVector : vectors) {
             localVector.minus(vector);
         }
     }
 
-    @Override
     public void mul(double number) {
         for (Vector localVector : vectors) {
             localVector.mul(number);
         }
     }
 
-    @Override
     public void div(double number) {
         for (Vector localVector : vectors) {
             localVector.div(number);
         }
     }
 
-    @Override
-    public void rotateX(double rx) {
-//        for (Vector localVector : vectors) {
-//            //localVector.rotateX(rx);
-//
-//        }
-//
-//        for (int i = 0; i < this.vectors.length; i++) {
-//            this.vectors[i] = new Vector(this.vectors[i].getX(), this.vectors[i].getY(), this.vectors[i].getZ());
-//        }
+    public Triangle mulToMatrix(Matrix matrix) {
+        return new Triangle(matrix.mulToVector(vectors[0]), matrix.mulToVector(vectors[1]), matrix.mulToVector(vectors[2]));
     }
 }

@@ -113,4 +113,9 @@ public class Mesh implements Object3D {
     public Matrix model() {
         return Matrix.translate(position, 4).mul(transformMatrix);
     }
+
+    public Vector getPosition()
+    {
+        return position;
+    }
 }

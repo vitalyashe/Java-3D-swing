@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,6 +20,10 @@ public class Main {
         field.setBounds(0, 0, 1920, 1080);
         frame.add(field);
 
+        Input eventListener = new Input(field);
+        frame.addKeyListener(eventListener);
+        frame.addMouseMotionListener(eventListener);
+
         Mesh[] objects = initObjects();
 
         for (Mesh obj : objects) {
@@ -28,10 +33,29 @@ public class Main {
 
         field.repaint();
 
+        Robot robot = null;
+
+
+        try {
+            robot = new Robot();
+        } catch (AWTException e) {
+            throw new RuntimeException(e);
+        }
+
+        Point p;
+
         while (true) {
+            p = MouseInfo.getPointerInfo().getLocation();
+
+            if (p.x != frame.getWidth() / 2 + frame.getX() && p.y != frame.getHeight() / 2 + frame.getY()) {
+                eventListener.block();
+                robot.mouseMove(frame.getWidth() / 2 + frame.getX(), frame.getHeight() / 2 + frame.getY());
+                eventListener.unblock();
+            }
+
             field.repaint();
             try {
-                Thread.sleep(10);
+                Thread.sleep(1);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -40,7 +64,12 @@ public class Main {
 
     private static Mesh[] initObjects() {
         ArrayList<Mesh> result = new ArrayList<>();
-        result.add(getObject("box.obj"));
+        Mesh mesh = getObject("box.obj");
+        result.add(mesh);
+
+
+        //mesh.translateToPoint(new Vector(0, 0, 0));
+        //mesh.rotate(new Vector(1, 0, 0), (45 * Math.PI) / 180);
 
         return result.toArray(new Mesh[0]);
     }

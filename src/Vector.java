@@ -21,10 +21,18 @@ public class Vector {
         this.z = z;
     }
 
+    public Vector(double x, double y, double z, double w) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.w = w;
+    }
+
     public Vector(Vector vector) {
         this.x = vector.x;
         this.y = vector.y;
         this.z = vector.z;
+        this.w = vector.w;
     }
 
     public double getX() {
@@ -122,7 +130,7 @@ public class Vector {
     }
 
     public double dot(Vector vector) {
-        return getX() * vector.getY() + getY() * vector.getY() + getZ() * vector.getZ();
+        return getX() * vector.getX() + getY() * vector.getY() + getZ() * vector.getZ();
     }
 
     public Vector cross(Vector vector) {
@@ -138,12 +146,18 @@ public class Vector {
                 {x, 0, 0, 0},
                 {0, y, 0, 0},
                 {0, 0, z, 0},
-                {0, 0, 0, 1}
+                {0, 0, 0, w}
         });
     }
 
     public double[] getAsArray()
     {
         return new double[]{getX(), getY(), getZ()};
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Vector [" + getX() + ", " + getY() + ", " + getZ() + "]";
     }
 }
